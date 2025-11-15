@@ -10,7 +10,7 @@ using NASA's EONET API. The app features a custom dark map theme,
 animated lava markers, a mobile-optimized slide-out info drawer, reverse
 geocoding, and curated volcano facts --- all fully rebuilt from scratch
 into a polished, portfolio-ready project.
-
+Live Link: https://volcano-activity-explorer.netlify.app/
 ------------------------------------------------------------------------
 
 ## 🌋 Features
