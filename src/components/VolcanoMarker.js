@@ -1,34 +1,19 @@
 import { Icon } from "@iconify/react";
 import volcanoIcon from "@iconify/icons-mdi/terrain";
 
-const VolcanoMarker = ({ lat, lng, volcanoData, onClick }) => {
+const VolcanoMarker = ({ onClick }) => {
+    const handleTap = (e) => {
+        e.stopPropagation();        // <-- prevents map onClick from firing
+        onClick();
+    };
+
     return (
         <div
-            onClick={onClick}
-            onTouchStart={onClick}
-            lat={lat}
-            lng={lng}
-            volcanoData={volcanoData}
-            style={{
-                width: "45px",
-                height: "45px",
-                transform: "translate(-50%, -50%)",
-                position: "absolute",
-                cursor: "pointer",
-                pointerEvents: "auto",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-            }}
+            className="volcano-marker"
+            onClick={handleTap}
+            onTouchStart={handleTap}
         >
-            <Icon
-                icon={volcanoIcon}
-                style={{
-                    fontSize: "34px",
-                    color: "#ff4500",
-                    pointerEvents: "none",
-                }}
-            />
+            <Icon icon={volcanoIcon} className="volcano-icon" />
         </div>
     );
 };

@@ -9,50 +9,45 @@ const VOLCANO_CATEGORY_ID = "volcanoes";
 const VolcanoMap = ({ eventData, center, zoom }) => {
     const [selectedVolcano, setSelectedVolcano] = useState(null);
 
-    /* ----------------------------------------
-       Build markers
-    ---------------------------------------- */
-    const markers = eventData
-        .map((ev, index) => {
-            const category = ev.categories?.[0]?.id;
-            if (category !== VOLCANO_CATEGORY_ID) return null;
+    const markers = eventData.map((ev, index) => {
+        const category = ev.categories?.[0]?.id;
+        if (category !== VOLCANO_CATEGORY_ID) return null;
 
-            const sourceGeometry = ev.geometry || ev.geometries || [];
-            const geometry = [...sourceGeometry]
-                .reverse()
-                .find(
-                    (g) =>
-                        g &&
-                        g.type === "Point" &&
-                        Array.isArray(g.coordinates) &&
-                        g.coordinates.length === 2
-                );
+        const sourceGeometry = ev.geometry || ev.geometries || [];
+        const geometry = [...sourceGeometry]
+            .reverse()
+            .find(
+                (g) =>
+                    g &&
+                    g.type === "Point" &&
+                    Array.isArray(g.coordinates) &&
+                    g.coordinates.length === 2
+            );
 
-            if (!geometry) return null;
+        if (!geometry) return null;
 
-            const [lng, lat] = geometry.coordinates;
+        const [lng, lat] = geometry.coordinates;
 
-            return (
-                <VolcanoMarker
-                    key={index}
-                    lat={lat}
-                    lng={lng}
-                    volcanoData={{
+        return (
+            <VolcanoMarker
+                key={index}
+                lat={lat}
+                lng={lng}
+                onClick={() =>
+                    setSelectedVolcano({
                         id: ev.id,
                         title: ev.title,
                         lat,
                         lng,
                         date: geometry.date,
                         source: ev.sources?.[0]?.url || null,
-                    }}
-                />
-            );
-        })
-        .filter(Boolean);
+                    })
+                }
+            />
+        );
+    });
 
-    /* ----------------------------------------
-       Swipe to close drawer
-    ---------------------------------------- */
+    // Swipe-to-close drawer (your original behavior)
     useEffect(() => {
         let startX = 0;
 
@@ -78,13 +73,10 @@ const VolcanoMap = ({ eventData, center, zoom }) => {
 
     const closeDrawer = () => setSelectedVolcano(null);
 
-    /* ----------------------------------------
-       Render
-    ---------------------------------------- */
     return (
         <div className="map">
 
-            {/* Backdrop behind drawer */}
+            {/* Overlay behind drawer (only shown when open) */}
             {selectedVolcano && (
                 <div
                     className="drawer-backdrop"
@@ -108,23 +100,11 @@ const VolcanoMap = ({ eventData, center, zoom }) => {
                 }}
                 defaultCenter={center}
                 defaultZoom={zoom}
-                onChildClick={(childKey, childProps) => {
-                    // User tapped a volcano marker → Open drawer
-                    if (childProps?.volcanoData) {
-                        setSelectedVolcano(childProps.volcanoData);
-                    }
-                }}
-                onClick={() => {
-                    // Tap anywhere on map → close drawer
-                    if (selectedVolcano) setSelectedVolcano(null);
-                }}
                 options={{
                     styles: darkMapStyle,
                     disableDefaultUI: true,
                     zoomControl: true,
-                    gestureHandling: "greedy", // <-- CRITICAL FIX
-                    fullscreenControl: false,
-                    mapTypeControl: false,
+                    gestureHandling: "greedy", // allow single-finger pan, fewer weird touch issues
                 }}
             >
                 {markers}
