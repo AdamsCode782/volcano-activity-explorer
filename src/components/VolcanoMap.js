@@ -7,148 +7,125 @@ import darkMapStyle from "../mapStyles/darkMap";
 const VOLCANO_CATEGORY_ID = "volcanoes";
 
 const VolcanoMap = ({ eventData, center, zoom }) => {
-    const [selectedVolcano, setSelectedVolcano] = useState(null);
+  const [selectedVolcano, setSelectedVolcano] = useState(null);
 
-    const markers = eventData.map((ev, index) => {
-        const category = ev.categories?.[0]?.id;
-        if (category !== VOLCANO_CATEGORY_ID) return null;
+  const markers = eventData.map((ev, index) => {
+    const category = ev.categories?.[0]?.id;
+    if (category !== VOLCANO_CATEGORY_ID) return null;
 
-        const sourceGeometry = ev.geometry || ev.geometries || [];
-        const geometry = [...sourceGeometry]
-            .reverse()
-            .find(
-                (g) =>
-                    g &&
-                    g.type === "Point" &&
-                    Array.isArray(g.coordinates) &&
-                    g.coordinates.length === 2
-            );
+    const sourceGeometry = ev.geometry || ev.geometries || [];
+    const geometry = [...sourceGeometry]
+      .reverse()
+      .find(
+        (g) =>
+          g &&
+          g.type === "Point" &&
+          Array.isArray(g.coordinates) &&
+          g.coordinates.length === 2
+      );
 
-        if (!geometry) return null;
+    if (!geometry) return null;
 
-        const [lng, lat] = geometry.coordinates;
-
-        return (
-            <VolcanoMarker
-                key={index}
-                lat={lat}
-                lng={lng}
-                onClick={() =>
-                    setSelectedVolcano({
-                        id: ev.id,
-                        title: ev.title,
-                        lat,
-                        lng,
-                        date: geometry.date,
-                        source: ev.sources?.[0]?.url || null,
-                    })
-                }
-            />
-        );
-    });
-
-    /* ----------------------------------------
-       Swipe to close (your existing feature)
-    ---------------------------------------- */
-    useEffect(() => {
-        let startX = 0;
-
-        const onStart = (e) => {
-            startX = e.touches[0].clientX;
-        };
-
-        const onEnd = (e) => {
-            const endX = e.changedTouches[0].clientX;
-            if (selectedVolcano && endX - startX > 60) {
-                setSelectedVolcano(null);
-            }
-        };
-
-        window.addEventListener("touchstart", onStart);
-        window.addEventListener("touchend", onEnd);
-
-        return () => {
-            window.removeEventListener("touchstart", onStart);
-            window.removeEventListener("touchend", onEnd);
-        };
-    }, [selectedVolcano]);
-
-    /* ----------------------------------------
-       Tap anywhere outside drawer → close
-       (EXCLUDING taps on drawer itself)
-    ---------------------------------------- */
-    useEffect(() => {
-        if (!selectedVolcano) return;
-
-        const handleGlobalTap = (e) => {
-            // If the drawer is open and the user taps ANYWHERE except inside the drawer:
-            const drawer = document.querySelector(".drawer");
-            if (drawer && !drawer.contains(e.target)) {
-                setSelectedVolcano(null);
-            }
-        };
-
-        // Support both click + touch
-        window.addEventListener("mousedown", handleGlobalTap);
-        window.addEventListener("touchstart", handleGlobalTap);
-
-        return () => {
-            window.removeEventListener("mousedown", handleGlobalTap);
-            window.removeEventListener("touchstart", handleGlobalTap);
-        };
-    }, [selectedVolcano]);
-
-    const closeDrawer = () => setSelectedVolcano(null);
+    const [lng, lat] = geometry.coordinates;
 
     return (
-        <div className="map">
-
-            {/* Backdrop behind drawer */}
-            {selectedVolcano && (
-                <div
-                    className="drawer-backdrop"
-                    onClick={closeDrawer}
-                    style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        width: "100vw",
-                        height: "100vh",
-                        background: "rgba(0, 0, 0, 0.35)",
-                        backdropFilter: "blur(2px)",
-                        zIndex: 2500,
-                    }}
-                />
-            )}
-
-            <GoogleMapReact
-                bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY }}
-                defaultCenter={center}
-                defaultZoom={zoom}
-                onClick={() => {
-                    if (selectedVolcano) setSelectedVolcano(null);
-                }}
-                onChildClick={() => {}}
-                options={{
-                    styles: darkMapStyle,
-                    disableDefaultUI: true,
-                    zoomControl: true,
-                }}
-            >
-                {markers}
-            </GoogleMapReact>
-
-            <VolcanoInfoDrawer
-                volcano={selectedVolcano}
-                onClose={closeDrawer}
-            />
-        </div>
+      <VolcanoMarker
+        key={index}
+        lat={lat}
+        lng={lng}
+        onClick={() =>
+          setSelectedVolcano({
+            id: ev.id,
+            title: ev.title,
+            lat,
+            lng,
+            date: geometry.date,
+            source: ev.sources?.[0]?.url || null,
+          })
+        }
+      />
     );
+  });
+
+  /* Fix for swipe-to-close drawer ONLY (not global touch blocking markers) */
+  useEffect(() => {
+    let startX = 0;
+
+    const onStart = (e) => {
+      startX = e.touches[0].clientX;
+    };
+
+    const onEnd = (e) => {
+      const endX = e.changedTouches[0].clientX;
+      if (selectedVolcano && endX - startX > 60) {
+        setSelectedVolcano(null);
+      }
+    };
+
+    window.addEventListener("touchstart", onStart);
+    window.addEventListener("touchend", onEnd);
+
+    return () => {
+      window.removeEventListener("touchstart", onStart);
+      window.removeEventListener("touchend", onEnd);
+    };
+  }, [selectedVolcano]);
+
+  const closeDrawer = () => setSelectedVolcano(null);
+
+  return (
+    <div className="map">
+
+      {selectedVolcano && (
+        <div
+          className="drawer-backdrop"
+          onClick={closeDrawer}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0, 0, 0, 0.35)",
+            backdropFilter: "blur(2px)",
+            zIndex: 2500,
+          }}
+        />
+      )}
+
+      <GoogleMapReact
+        bootstrapURLKeys={{
+          key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+        }}
+        defaultCenter={center}
+        defaultZoom={zoom}
+        onClick={() => {
+          if (selectedVolcano) setSelectedVolcano(null);
+        }}
+        onChildClick={() => {}}
+        options={{
+          styles: darkMapStyle,
+          disableDefaultUI: true,
+          zoomControl: true,
+          gestureHandling: "greedy", // CRITICAL FIX
+          fullscreenControl: false,
+          mapTypeControl: false,
+        }}
+      >
+        {markers}
+      </GoogleMapReact>
+
+      <VolcanoInfoDrawer
+        volcano={selectedVolcano}
+        onClose={closeDrawer}
+      />
+    </div>
+  );
 };
 
 VolcanoMap.defaultProps = {
-    center: { lat: 20, lng: 0 },
-    zoom: 2,
+  center: { lat: 20, lng: 0 },
+  zoom: 2,
 };
 
 export default VolcanoMap;
