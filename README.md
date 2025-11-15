@@ -1,12 +1,10 @@
 # Volcano Activity Explorer
 
-```{=html}
+
 <p align="center">
-```
-`<img src="public/screenshot.png" alt="Global Volcano Activity Map Screenshot" width="100%">`{=html}
-```{=html}
+  <img src="public/screenshot.png" alt="Global Volcano Activity Map Screenshot" width="100%">
 </p>
-```
+
 A React application that visualizes **active volcanic events worldwide**
 using NASA's EONET API. The app features a custom dark map theme,
 animated lava markers, a mobile-optimized slide-out info drawer, reverse

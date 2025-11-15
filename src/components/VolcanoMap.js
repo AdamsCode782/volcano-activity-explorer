@@ -4,7 +4,6 @@ import VolcanoMarker from "./VolcanoMarker";
 import VolcanoInfoDrawer from "./VolcanoInfoDrawer";
 import darkMapStyle from "../mapStyles/darkMap";
 
-
 const VOLCANO_CATEGORY_ID = "volcanoes";
 
 const VolcanoMap = ({ eventData, center, zoom }) => {
@@ -48,7 +47,9 @@ const VolcanoMap = ({ eventData, center, zoom }) => {
         );
     });
 
-
+    /* ----------------------------------------
+       Swipe to close (your existing feature)
+    ---------------------------------------- */
     useEffect(() => {
         let startX = 0;
 
@@ -72,14 +73,37 @@ const VolcanoMap = ({ eventData, center, zoom }) => {
         };
     }, [selectedVolcano]);
 
+    /* ----------------------------------------
+       Tap anywhere outside drawer → close
+       (EXCLUDING taps on drawer itself)
+    ---------------------------------------- */
+    useEffect(() => {
+        if (!selectedVolcano) return;
 
+        const handleGlobalTap = (e) => {
+            // If the drawer is open and the user taps ANYWHERE except inside the drawer:
+            const drawer = document.querySelector(".drawer");
+            if (drawer && !drawer.contains(e.target)) {
+                setSelectedVolcano(null);
+            }
+        };
+
+        // Support both click + touch
+        window.addEventListener("mousedown", handleGlobalTap);
+        window.addEventListener("touchstart", handleGlobalTap);
+
+        return () => {
+            window.removeEventListener("mousedown", handleGlobalTap);
+            window.removeEventListener("touchstart", handleGlobalTap);
+        };
+    }, [selectedVolcano]);
 
     const closeDrawer = () => setSelectedVolcano(null);
 
     return (
         <div className="map">
 
-            {/* Overlay behind drawer (only shown when open) */}
+            {/* Backdrop behind drawer */}
             {selectedVolcano && (
                 <div
                     className="drawer-backdrop"
@@ -101,6 +125,10 @@ const VolcanoMap = ({ eventData, center, zoom }) => {
                 bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY }}
                 defaultCenter={center}
                 defaultZoom={zoom}
+                onClick={() => {
+                    if (selectedVolcano) setSelectedVolcano(null);
+                }}
+                onChildClick={() => {}}
                 options={{
                     styles: darkMapStyle,
                     disableDefaultUI: true,

@@ -40,7 +40,11 @@ const VolcanoInfoDrawer = ({ volcano, onClose }) => {
     const country = locationData?.address?.country || "Unknown location";
 
     return (
-        <div className={`drawer ${volcano ? "open" : ""}`}>
+        <div
+            className={`drawer ${volcano ? "open" : ""}`}
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+        >
             {volcano && (
                 <>
                     <button className="drawer-close" onClick={onClose}>×</button>

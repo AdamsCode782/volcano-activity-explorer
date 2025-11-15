@@ -98,15 +98,22 @@ body {
 ========================================================= */
 
 .volcano-marker {
+  width: 45px;
+  height: 45px;
   transform: translate(-50%, -50%);
   cursor: pointer;
+  pointer-events: auto !important;   /* ensures taps register */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .volcano-icon {
-  font-size: 2rem;
+  font-size: 34px;
   color: #ff4500;
   filter: drop-shadow(0 0 5px rgba(255, 80, 0, 0.7));
   transition: transform 0.2s ease, filter 0.2s ease;
+  pointer-events: none !important;   /* allows wrapper to receive all taps */
 }
 
 .volcano-icon:hover {
@@ -230,6 +237,13 @@ body {
 ========================================================= */
 
 @media (max-width: 700px) {
+.volcano-marker {
+  pointer-events: auto !important;
+}
+
+.volcano-icon {
+  pointer-events: none !important; /* wrapper gets the events */
+}
 
   .header-text {
     font-size: 18px;
