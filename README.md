@@ -11,7 +11,7 @@ animated lava markers, a mobile-optimized slide-out info drawer, reverse
 geocoding, and curated volcano facts --- all fully rebuilt from scratch
 into a polished, portfolio-ready project.
 
-🌐 Live Demo: https://volcano-activity-explorer.netlify.app/
+🌐 Live Demo: https://adamscode782.github.io/volcano-activity-explorer/
 ------------------------------------------------------------------------
 
 ## 🌋 Features
